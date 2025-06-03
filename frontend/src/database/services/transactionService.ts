@@ -2,7 +2,10 @@
 import { Transaction } from '../models/Transaction';
 import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import { getDatabase } from '../db';
-import { useConfig } from '../../config/configContext';
+import { Alert } from 'react-native';
+import XLSX from 'xlsx';
+import RNFS from 'react-native-fs';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 export class TransactionService {
 
@@ -185,6 +188,66 @@ export class TransactionService {
             console.error("Error updating transaction:", error);
             throw error;
         }
+    }
+
+    async exportTransactionsToExcel(): Promise<boolean> {
+        try {
+            // 1. Demande permission Android
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    {
+                        title: 'Permission de stockage',
+                        message: 'L\'application a besoin d\'accéder au stockage pour enregistrer le fichier Excel.',
+                        buttonNeutral: 'Plus tard',
+                        buttonNegative: 'Annuler',
+                        buttonPositive: 'OK',
+                    }
+                );
+
+                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log('Permission refusée');
+                    return false;
+                }
+            }
+
+            // 2. Récupérer les transactions
+            const transactions = await this.getTransactions();
+
+            // 3. Créer une feuille Excel
+            const ws = XLSX.utils.json_to_sheet(transactions);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+
+            const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+
+            // 4. Convertir en buffer
+            const buffer = this.s2ab(wbout);
+
+            // 5. Chemin temporaire
+            const fileName = `Transactions_${Date.now()}.xlsx`;
+            const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+
+            // 6. Sauvegarder le fichier
+            await RNFS.writeFile(path, buffer, 'ascii');
+            console.log('Fichier Excel créé avec succès à :', path);
+            return true
+            
+
+        } catch (err) {
+            console.error('Erreur lors de l\'exportation Excel:', err);
+            return false
+        }
+    }
+
+    // Fonction utilitaire pour convertir en buffer ASCII
+    private s2ab(s: string): string {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+            view[i] = s.charCodeAt(i) & 0xFF;
+        }
+        return String.fromCharCode.apply(null, Array.from(view));
     }
 
 }

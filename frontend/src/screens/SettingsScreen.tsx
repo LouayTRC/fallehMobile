@@ -2,11 +2,12 @@
 
 // src/screens/ConfigScreen.tsx
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert,Button } from 'react-native';
-import { Text, TextInput,  } from 'react-native-paper';
+import { View, StyleSheet, Alert, Button } from 'react-native';
+import { Text, TextInput, } from 'react-native-paper';
 
-import { useConfig } from '../config/configContext';
+import { useConfig } from '../context/configContext';
 import theme from '../theme';
+import { TransactionService } from '../database/services/transactionService';
 
 const SettingsScreen = () => {
   const { adminPassword, pricePerKg, setAdminPassword, setPricePerKg } = useConfig();
@@ -42,36 +43,47 @@ const SettingsScreen = () => {
 
   return (
     <View style={styles.container}>
-    
-      <Text style={styles.label}>Mot de passe Admin :</Text>
-      <TextInput
-        style={styles.input}
-        placeholderTextColor={'gray'}
-        textColor='white'
-        value={newPassword}
-        onChangeText={setNewPassword}
-        secureTextEntry
-        placeholder="Mot de passe"
-      />
+      <View>
+        <Text style={styles.label}>Mot de passe Admin :</Text>
+        <TextInput
+          style={styles.input}
+          placeholderTextColor={'gray'}
+          textColor='white'
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          placeholder="Mot de passe"
+        />
 
-      <Text style={styles.label}>Prix par kg :</Text>
-      <TextInput
-        style={[styles.input,{marginBottom:20}]}
-        placeholderTextColor={'gray'}
-        textColor='white'
-        value={newPrice}
-        keyboardType="numeric"
-        onChangeText={setNewPrice}
-        placeholder="Prix en TND"
-      />
+        <Text style={styles.label}>Prix par kg :</Text>
+        <TextInput
+          style={[styles.input, { marginBottom: 20 }]}
+          placeholderTextColor={'gray'}
+          textColor='white'
+          value={newPrice}
+          keyboardType="numeric"
+          onChangeText={setNewPrice}
+          placeholder="Prix en TND"
+        />
 
-      <Button  title="Enregistrer" color={theme.colors.falleh} onPress={saveConfig} />
+        <Button title="Enregistrer" color={theme.colors.falleh} onPress={saveConfig} />
+      </View>
+
+
+      <View>
+        <Button title="Exporter Excel" color={'#a78bfa'} onPress={() => {
+          const service = new TransactionService();
+          service.exportTransactionsToExcel();
+        }} />
+
+      </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: theme.colors.background },
+  container: { flex: 1, padding: 20, backgroundColor: theme.colors.background,flexDirection:"column",justifyContent:"space-between" },
   label: {
     fontSize: 16,
     fontWeight: '600',

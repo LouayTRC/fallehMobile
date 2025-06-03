@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
-  TextInput, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
   TouchableOpacity,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { useAuth } from '../context/authContext';
 
-const LoginScreen:React.FC<any> = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+const LoginScreen: React.FC<any> = ({ navigation }) => {
+
   const [password, setPassword] = useState('');
+  const { connected, connect } = useAuth()
 
   const handleLogin = () => {
-    // Add your login logic here
-    console.log('Login attempted with:', email, password);
+    if (password.trim().length > 0) {
+      const res = connect(password)
+      if (!res) {
+        Alert.alert('Problème', 'Mot de passe incorrect.');
+
+      }
+    }
   };
 
   return (
@@ -28,31 +36,22 @@ const LoginScreen:React.FC<any> = ({ navigation }) => {
         <View style={styles.content}>
           <Text style={styles.title}>Welcome Back</Text>
           <Text style={styles.subtitle}>Please sign in to continue</Text>
-          
+
           <View style={styles.form}>
             <TextInput
               style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            
-            <TextInput
-              style={styles.input}
               placeholder="Password"
-              placeholderTextColor="#999"
+              placeholderTextColor="gray"
+              textColor='white'
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
-            
+
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
               <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
-            
+
           </View>
         </View>
       </KeyboardAvoidingView>

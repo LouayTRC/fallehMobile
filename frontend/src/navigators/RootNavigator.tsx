@@ -6,6 +6,7 @@ import { use, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import LoginScreen from "../screens/LoginScreen";
 import { UserStackNavigator } from "./UserNavigator";
+import { useAuth } from "../context/authContext";
 
 // import {ParentStackNavigator} from "./ParentStacks";
 
@@ -19,37 +20,15 @@ const RootStack = createNativeStackNavigator<RootStackParams>()
 
 export const RootNavigator = () => {
 
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
 
-    const getSession=async ()=>{
-        if (!user) {
-            const u = await AsyncStorage.getItem('user');
-            if (u) {
-                setUser(JSON.parse(u))
-            }
-        }
-    }
+    const {connected} = useAuth();
 
-    useEffect(()=>{
-        setLoading(false)
-        getSession()
-        console.log("user",user);
-        
-    },[user])
-
-
-    if (loading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-        );
-    }
+    
+    
 
     return (
         <RootStack.Navigator screenOptions={{ headerShown: false }}>
-            {user ? (
+            {!connected ? (
                 <RootStack.Screen name="Login" component={LoginScreen} />
             ) : (
                 <RootStack.Screen name="UserStack" component={UserStackNavigator} />

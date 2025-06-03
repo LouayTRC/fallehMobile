@@ -8,7 +8,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import theme from '../theme';
 import { TransactionService } from '../database/services/transactionService';
 import { useFocusEffect } from '@react-navigation/native';
-import { useConfig } from '../config/configContext';
+import { useConfig } from '../context/configContext';
 
 const HomeScreen: React.FC<any> = ({ navigation }: any) => {
   const transactionService = new TransactionService()
@@ -19,6 +19,9 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
   const { pricePerKg } = useConfig()
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<'All' | 'Falleh' | 'Base'>('All');
+  const [paidFilter, setPaidFilter] = useState<'All' | 'paid' | 'unpaid'>('All');
 
   const [transactions, setTransactions] = useState<Transaction[] | null>(null)
   const [filtredTransactions, setfiltredTransactions] = useState<Transaction[] | null>(null)
@@ -41,13 +44,31 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
   );
 
   useEffect(() => {
-    let filtred = []
     if (transactions && transactions.length > 0) {
-      filtred = transactions.filter(f => f.name.toUpperCase().includes(searchQuery.toUpperCase()))
-      setfiltredTransactions(filtred)
-    }
+      let filtred = transactions;
 
-  }, [searchQuery, transactions])
+      if (searchQuery.trim() !== '') {
+        filtred = filtred.filter(t =>
+          t.name.toUpperCase().includes(searchQuery.trim().toUpperCase())
+        );
+      }
+
+      if (typeFilter !== 'All') {
+        filtred = filtred.filter(t => t.type === typeFilter);
+      }
+
+      if (paidFilter !== 'All') {
+        if (paidFilter === 'paid') {
+          filtred = filtred.filter(t => t.paid == true);
+        } else if (paidFilter === 'unpaid') {
+          filtred = filtred.filter(t => t.paid == false);
+        }
+      }
+
+      setfiltredTransactions(filtred);
+    }
+  }, [searchQuery, transactions, typeFilter, paidFilter]);
+
 
 
   useEffect(() => {
@@ -105,6 +126,8 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
 
     }
   };
+
+
 
   const styles = StyleSheet.create({
     container: {
@@ -371,6 +394,97 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
 
   });
 
+  const filterModalStyle = StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    modalContent: {
+      position: 'relative',
+      backgroundColor: '#1e1e1e',
+      borderRadius: 10,
+      width: '100%',
+      maxWidth: 400,
+      padding: 15,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: 'white',
+      marginBottom: 15,
+      textAlign: 'center',
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: '600',
+      marginTop: 10,
+      marginBottom: 6,
+      color: 'white',
+    },
+    radioGroup: {
+      flexDirection: 'row',  // inline
+      flexWrap: 'wrap',
+      marginHorizontal: 'auto',
+    },
+    radioOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginRight: 20,
+      marginBottom: 10,
+    },
+    radioCircle: {
+      height: 20,
+      width: 20,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: '#444',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 6,
+    },
+    selectedRadio: {
+      backgroundColor: '#7e22ce',
+      height: 12,
+      width: 12,
+      borderRadius: 6,
+    },
+    radioLabel: {
+      fontSize: 16,
+      color: 'white',
+    },
+    applyButton: {
+      marginTop: 20,
+      backgroundColor: '#7e22ce',
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      padding: 5,
+      zIndex: 1,
+    },
+    closeText: {
+      color: '#aaa',
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+
+  });
+
+
+
+
 
 
 
@@ -437,8 +551,8 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
           activeUnderlineColor='transparent'
           onChangeText={setSearchQuery}
         />
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search" size={20} color="white" />
+        <TouchableOpacity style={styles.searchButton} onPress={() => setFilterVisible(true)}>
+          <Ionicons name="filter" size={20} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -481,18 +595,30 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
                 titleStyle={styles.accordionTitle}
               >
                 <View style={{ padding: 5, marginBottom: 5 }}>
+
                   <View style={styles.detailsLine}>
-                    <Text style={{ color: 'gray' }}>KG:</Text>
-                    <Text style={{ color: 'white' }}>{item.kilos}</Text>
-                  </View>
-                  <View style={styles.detailsLine}>
-                    <Text style={{ color: 'gray' }}>Number of Bottles :</Text>
-                    <Text style={{ color: 'white' }}>{item.boxes}</Text>
-                  </View>
-                  <View style={styles.detailsLine}>
-                    <Text style={{ color: 'gray' }}>KGF</Text>
+                    <Text style={{ color: 'gray' }}>KGF:</Text>
                     <Text style={{ color: 'white' }}>{item.kgf}</Text>
                   </View>
+
+                  {item.type == "Base" && (
+                    <>
+                      <View style={styles.detailsLine}>
+                        <Text style={{ color: 'gray' }}>Litres:</Text>
+                        <Text style={{ color: 'white' }}>{item.litres || 0}</Text>
+                      </View>
+                      <View style={styles.detailsLine}>
+                        <Text style={{ color: 'gray' }}>Prix Base :</Text>
+                        <Text style={{ color: 'white' }}>{item.prixBase || 0}</Text>
+                      </View></>
+                  )}
+
+                  {item.comment && (
+                    <View >
+                      <Text style={{ color: 'gray' }}>commentaire: </Text>
+                      <Text style={{ color: 'white' }}>{item.comment}</Text>
+                    </View>
+                  )}
 
 
                   <View style={[styles.divider, { marginHorizontal: 8, marginVertical: 10 }]} />
@@ -618,6 +744,63 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
           </ScrollView>
         )}
       </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={filterVisible}
+        onRequestClose={() => setFilterVisible(false)}
+      >
+        <View style={filterModalStyle.modalOverlay}>
+          <View style={filterModalStyle.modalContent}>
+            <Text style={filterModalStyle.modalTitle}>Filter Options</Text>
+
+            <Text style={filterModalStyle.label}>Type</Text>
+            <View style={filterModalStyle.radioGroup}>
+              {['All', 'Falleh', 'Base'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={filterModalStyle.radioOption}
+                  onPress={() => setTypeFilter(option as any)}
+                >
+                  <View style={filterModalStyle.radioCircle}>
+                    {typeFilter === option && <View style={filterModalStyle.selectedRadio} />}
+                  </View>
+                  <Text style={filterModalStyle.radioLabel}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={filterModalStyle.label}>Paid</Text>
+            <View style={filterModalStyle.radioGroup}>
+              {['All', 'paid', 'unpaid'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={filterModalStyle.radioOption}
+                  onPress={() => setPaidFilter(option as any)}
+                >
+                  <View style={filterModalStyle.radioCircle}>
+                    {paidFilter === option && <View style={filterModalStyle.selectedRadio} />}
+                  </View>
+                  <Text style={filterModalStyle.radioLabel}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            
+            <TouchableOpacity
+              style={filterModalStyle.closeButton}
+              onPress={() => setFilterVisible(false)}
+            >
+              <Text style={filterModalStyle.closeText}>✕</Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </Modal>
+
+
+
     </View >
   );
 };

@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import theme from '../theme';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransactionService } from '../database/services/transactionService';
-import { useConfig } from '../config/configContext';
+import { useConfig } from '../context/configContext';
 
 type FormData = {
   name: string;

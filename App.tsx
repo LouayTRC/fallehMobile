@@ -8,7 +8,9 @@ import theme from "./frontend/src/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { initDatabase } from "./frontend/src/database/db";
-import { ConfigProvider } from "./frontend/src/config/configContext";
+import { ConfigProvider, } from "./frontend/src/context/configContext";
+import { AuthProvider } from "./frontend/src/context/authContext";
+
 const App = () => {
   const [initialisedDB, setInitialisedDB] = useState(false)
 
@@ -30,15 +32,18 @@ const App = () => {
   if (initialisedDB) {
     return (
       <ConfigProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <PaperProvider theme={theme}>
-            <NavigationContainer>
-              <SafeAreaView style={styles.container}>
-                <RootNavigator />
-              </SafeAreaView>
-            </NavigationContainer>
-          </PaperProvider>
-        </GestureHandlerRootView>
+        <AuthProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <PaperProvider theme={theme}>
+              <NavigationContainer>
+                <SafeAreaView style={styles.container}>
+                  <RootNavigator />
+                </SafeAreaView>
+              </NavigationContainer>
+            </PaperProvider>
+          </GestureHandlerRootView>
+        </AuthProvider>
+
       </ConfigProvider>
     )
   }
