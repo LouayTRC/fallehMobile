@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Dimensions, Pressable, Modal, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Avatar, Card, List, Switch, TextInput, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Avatar, Card, List, Switch, TextInput, useTheme } from 'react-native-paper';
 import { Transaction } from '../database/models/Transaction';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -556,7 +556,11 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
       </View>
 
       <View style={styles.transactionsContainer}>
-        {filtredTransactions && filtredTransactions.length > 0 ? (
+        {!filtredTransactions ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          </View>
+        ) : filtredTransactions.length > 0 ? (
           <FlatList
             data={filtredTransactions}
             keyExtractor={(item) => item.id.toString()}

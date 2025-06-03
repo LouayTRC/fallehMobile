@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PaperProvider } from "react-native-paper";
+import { ActivityIndicator, PaperProvider } from "react-native-paper";
 import { NavigationContainer } from '@react-navigation/native';
 import { RootNavigator } from "./frontend/src/navigators/RootNavigator";
 import { StyleSheet } from "react-native";
@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { initDatabase } from "./frontend/src/database/db";
 import { ConfigProvider, } from "./frontend/src/context/configContext";
 import { AuthProvider } from "./frontend/src/context/authContext";
+import { View } from "react-native-reanimated/lib/typescript/Animated";
 
 const App = () => {
   const [initialisedDB, setInitialisedDB] = useState(false)
@@ -46,6 +47,13 @@ const App = () => {
 
       </ConfigProvider>
     )
+  }
+  else{
+    return (
+    <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <ActivityIndicator size="large" color={theme.colors.primary} />
+    </View>
+  );
   }
 
 
