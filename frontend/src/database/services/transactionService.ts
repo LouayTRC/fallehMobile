@@ -43,6 +43,7 @@ export class TransactionService {
             kgf,
             paid: false,
             created_at: new Date(),
+            comment:data.comment
         };
 
         if (data.type == 'Falleh') {

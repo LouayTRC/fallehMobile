@@ -71,9 +71,14 @@ const SettingsScreen = () => {
 
 
       <View>
-        <Button title="Exporter Excel" color={'#a78bfa'} onPress={() => {
+        <Button title="Exporter Excel" color={'#a78bfa'} onPress={async () => {
           const service = new TransactionService();
-          service.exportTransactionsToExcel();
+          const res = await service.exportTransactionsToExcel();
+          if (res) {
+            Alert.alert("Succès", "Base de données importé en Excel")
+          } else {
+            Alert.alert("Problème", "Erreur lors de l'importation de la BD")
+          }
         }} />
 
       </View>
@@ -83,7 +88,7 @@ const SettingsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: theme.colors.background,flexDirection:"column",justifyContent:"space-between" },
+  container: { flex: 1, padding: 20, backgroundColor: theme.colors.background, flexDirection: "column", justifyContent: "space-between" },
   label: {
     fontSize: 16,
     fontWeight: '600',

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Dimensions, Pressable, Modal } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Dimensions, Pressable, Modal, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Avatar, Card, List, Switch, TextInput, useTheme } from 'react-native-paper';
 import { Transaction } from '../database/models/Transaction';
@@ -120,9 +120,8 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
       setfiltredTransactions(updatedTransactions);
       console.log("update suceesfully");
 
-
     } catch (error) {
-      console.log("error updating");
+      Alert.alert("Problème", "Problème dans la mise à jour du transaction")
 
     }
   };
@@ -614,9 +613,8 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
                   )}
 
                   {item.comment && (
-                    <View >
-                      <Text style={{ color: 'gray' }}>commentaire: </Text>
-                      <Text style={{ color: 'white' }}>{item.comment}</Text>
+                    <View style={styles.detailsLine} >
+                      <Text style={{ color: 'gray' }}>commentaire: <Text style={{ color: 'white' }}>{item.comment}</Text></Text>
                     </View>
                   )}
 
@@ -787,7 +785,7 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
               ))}
             </View>
 
-            
+
             <TouchableOpacity
               style={filterModalStyle.closeButton}
               onPress={() => setFilterVisible(false)}

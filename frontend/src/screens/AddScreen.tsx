@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { RadioButton, Text, TextInput } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import theme from '../theme';
@@ -39,7 +39,9 @@ const AddScreen: React.FC<any> = ({ navigation }) => {
 
   const onSubmit = async (data: FormData) => {
     console.log('Transaction:', data);
-    await transactionService.addTransaction(data,pricePerKg);
+    await transactionService.addTransaction(data, pricePerKg);
+    Alert.alert("Succès", "Transaction ajouté avec succès")
+
     reset();
   };
 
