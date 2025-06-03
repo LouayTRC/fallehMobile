@@ -271,11 +271,11 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
       alignItems: 'center',
     },
     closeText: { marginTop: 10, color: 'blue' },
-    detailsLine:{
-      flexDirection:"row",
-      justifyContent:'space-between',
-      marginHorizontal:8,
-      marginVertical:2
+    detailsLine: {
+      flexDirection: "row",
+      justifyContent: 'space-between',
+      marginHorizontal: 8,
+      marginVertical: 2
     }
   });
 
@@ -475,12 +475,12 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
                   </View>
                 )}
                 expanded={expandedId === item.id}
-                onPress={() => toggleAccordion(item.id)}
                 onLongPress={() => handleLongPress(item)}
+                onPress={() => toggleAccordion(item.id)}
                 style={styles.accordionContainer}
                 titleStyle={styles.accordionTitle}
               >
-                <View style={{ padding: 5,marginBottom:5 }}>
+                <View style={{ padding: 5, marginBottom: 5 }}>
                   <View style={styles.detailsLine}>
                     <Text style={{ color: 'gray' }}>KG:</Text>
                     <Text style={{ color: 'white' }}>{item.kilos}</Text>
@@ -493,14 +493,14 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
                     <Text style={{ color: 'gray' }}>KGF</Text>
                     <Text style={{ color: 'white' }}>{item.kgf}</Text>
                   </View>
-                  
-                  
-                  <View style={[styles.divider,{marginHorizontal:8,marginVertical:10}]} />
+
+
+                  <View style={[styles.divider, { marginHorizontal: 8, marginVertical: 10 }]} />
                   <View style={styles.detailsLine}>
                     <Text style={{ color: 'gray' }}>Price:</Text>
                     <Text style={{ color: '#6E67C7' }}>{item.price} TND</Text>
                   </View>
-                  
+
                 </View>
               </List.Accordion>
             )}
@@ -513,8 +513,112 @@ const HomeScreen: React.FC<any> = ({ navigation }: any) => {
           </View>
         )}
       </View>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
 
-    </View>
+        {selectedTransaction && (
+          <ScrollView contentContainerStyle={modalStyles.modalContainer}>
+            <View style={modalStyles.modalContent}>
+              <Text style={modalStyles.label}>Modifier la transaction</Text>
+
+              {/* Toggle Paid */}
+
+
+              <Text style={modalStyles.label}>Kilos</Text>
+              <TextInput
+                placeholder="Entrez les kilos"
+                placeholderTextColor="gray"
+                textColor="white"
+                style={modalStyles.input}
+                keyboardType="numeric"
+                value={selectedTransaction.kilos.toString()}
+                onChangeText={(text) =>
+                  setSelectedTransaction({ ...selectedTransaction, kilos: parseFloat(text) || 0 })
+                }
+              />
+
+              <Text style={modalStyles.label}>Nombre de boîtes</Text>
+              <TextInput
+                placeholder="Entrez le nombre de boîtes"
+                placeholderTextColor="gray"
+                textColor="white"
+                style={modalStyles.input}
+                keyboardType="numeric"
+                value={selectedTransaction.boxes.toString()}
+                onChangeText={(text) =>
+                  setSelectedTransaction({ ...selectedTransaction, boxes: parseFloat(text) || 0 })
+                }
+              />
+
+              {selectedTransaction.type === 'Base' && (
+                <>
+                  <Text style={modalStyles.label}>Nombre de litres</Text>
+                  <TextInput
+                    placeholder="Entrez le nombre de litres"
+                    placeholderTextColor="gray"
+                    textColor="white"
+                    style={modalStyles.input}
+                    keyboardType="numeric"
+                    value={selectedTransaction.litres?.toString() || ''}
+                    onChangeText={(text) =>
+                      setSelectedTransaction({ ...selectedTransaction, litres: parseFloat(text) || 0 })
+                    }
+                  />
+
+                  <Text style={modalStyles.label}>Prix Base</Text>
+                  <TextInput
+                    placeholder="Entrez le prix du base"
+                    placeholderTextColor="gray"
+                    textColor="white"
+                    style={modalStyles.input}
+                    keyboardType="numeric"
+                    value={selectedTransaction.prixBase?.toString() || ''}
+                    onChangeText={(text) =>
+                      setSelectedTransaction({ ...selectedTransaction, prixBase: parseFloat(text) || 0 })
+                    }
+                  />
+
+
+                </>
+
+              )}
+              <Text style={modalStyles.label}>Payé</Text>
+              <View style={modalStyles.radioGroup}>
+                <TouchableOpacity
+                  style={modalStyles.radioButton}
+                  onPress={() => setSelectedTransaction({ ...selectedTransaction, paid: true })}
+                >
+                  <View style={[modalStyles.radioCircle, selectedTransaction.paid && modalStyles.selectedRadio]} />
+                  <Text style={modalStyles.radioLabel}>Oui</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={modalStyles.radioButton}
+                  onPress={() => setSelectedTransaction({ ...selectedTransaction, paid: false })}
+                >
+                  <View style={[modalStyles.radioCircle, !selectedTransaction.paid && modalStyles.selectedRadio]} />
+                  <Text style={modalStyles.radioLabel}>Non</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={modalStyles.submitButton}
+                onPress={handleUpdate}
+              >
+                <Text style={modalStyles.submitText}>Enregistrer</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[modalStyles.submitButton, { backgroundColor: '#a78bfa', marginTop: 3 }]} onPress={() => setModalVisible(false)}>
+                <Text style={[modalStyles.submitText]}>Fermer</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        )}
+      </Modal>
+    </View >
   );
 };
 
